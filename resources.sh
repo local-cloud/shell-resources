@@ -44,9 +44,30 @@ resource() {
 	serialize_arguments "$@" | (run_resource "$resource")
 }
 
+get_resource_dependencies() {
+	# shellcheck disable=SC2064
+	trap "$(shopt -p lastpipe)" RETURN
+	shopt -s lastpipe
+	local dependencies
+	sed -n '/### START DEPENDENCIES/,/### END DEPENDENCIES/p' \
+		| tail -n +2 \
+		| head -n -1 \
+		| cut -d ' ' -f 2 \
+		| IFS='' read -rd '' dependencies
+	local dependency
+	for dependency in $dependencies; do
+		if [ "$(type -t "$dependency")" != 'function' ]; then
+			# TODO: Base directory would be better than relying on poorly named RESOURCE_DIR
+			# shellcheck disable=SC1090
+			source "${RESOURCE_DIR}/../helpers/${dependency}.sh"
+		fi
+		declare -f "${dependency}"
+	done
+}
+
 resource_to_function() {
 	# shellcheck disable=SC2064
-	trap "$(shopt -p)" RETURN
+	trap "$(shopt -p lastpipe)" RETURN
 	shopt -s lastpipe
 	local resource=$1
 	local function_definition
@@ -54,7 +75,10 @@ resource_to_function() {
 		echo "resource_${resource}() {"
 		# shellcheck disable=SC2016
 		echo 'trap "$(shopt -p);$(shopt -po);$(declare -f)" RETURN'
-		cat "${RESOURCE_DIR}/${resource}.sh"
+		local resource_code
+		IFS='' read -rd '' resource_code < "${RESOURCE_DIR}/${resource}.sh"
+		echo "$resource_code" | get_resource_dependencies
+		echo "$resource_code"
 		echo "}"
 	} | IFS='' read -rd '' function_definition || true
 	eval "$function_definition"
