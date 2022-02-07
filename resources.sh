@@ -73,6 +73,7 @@ resource_to_function() {
 	local function_definition
 	{
 		echo "resource_${resource}() {"
+		echo 'set -euo pipefail'
 		# shellcheck disable=SC2016
 		echo 'trap "$(shopt -p);$(shopt -po);$(declare -f)" RETURN'
 		local resource_code
