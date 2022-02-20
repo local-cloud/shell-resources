@@ -7,7 +7,7 @@ resource() {
 	trap "$(declare -f)" RETURN
 
 	base64_encode() {
-		base64 --wrap 0 | { cat; echo; }
+		base64 -w 0 | { cat; echo; }
 	}
 
 	serialize_arguments() {

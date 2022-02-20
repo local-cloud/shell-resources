@@ -36,7 +36,6 @@ load common.sh
 			destination $(q "${BATS_TEST_TMPDIR}/dest")
 		realpath $(q "${BATS_TEST_TMPDIR}/dest")
 	EOF
-	run "$MANIFEST"
-	[ "$status" -eq 0 ]
+	run -0 "$MANIFEST"
 	[ "${lines[-1]}" = "${BATS_TEST_TMPDIR}/src" ]
 }
