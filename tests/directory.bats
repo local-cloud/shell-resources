@@ -14,8 +14,7 @@ load common.sh
 			mode $(q "$mode")
 		stat -c "%F;%U;%G;%a" $(q "$path")
 	EOF
-	run "$MANIFEST"
-	[ "$status" -eq 0 ]
+	run -0 "$MANIFEST"
 	[ "${lines[-1]}" = "directory;${owner};${group};${mode}" ]
 }
 
@@ -48,8 +47,7 @@ load common.sh
 			mode $(q "$mode")
 		stat -c "%F;%U;%G;%a" $(q "$path")
 	EOF
-	run "$MANIFEST"
-	[ "$status" -eq 0 ]
+	run -0 "$MANIFEST"
 	[ "${lines[-1]}" = "directory;${owner};${group};${mode}" ]
 }
 
@@ -62,8 +60,19 @@ load common.sh
 			path $(q "$path") \
 			state 'absent'
 	EOF
-	run "$MANIFEST"
-	[ "$status" -eq 0 ]
+	run -0 "$MANIFEST"
 	run stat "$path"
 	[ "$status" -ne 0 ]
+}
+
+@test "leave permissions unchanged" {
+	local path="${BATS_TEST_TMPDIR}/dir"
+	mkdir "$path"
+	chmod 000 "$path"
+	cat >> "$MANIFEST" <<-EOF
+		resource directory path $(q "$path")
+	EOF
+	run -0 "$MANIFEST"
+	run -0 stat -c "%F:%a" "$path"
+	[ "$output" = "directory:0" ]
 }

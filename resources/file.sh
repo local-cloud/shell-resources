@@ -64,7 +64,7 @@ main() {
 			if [ "$ARG_CHECK_MODE" = 1 ]; then
 				echo "Create file ${ARG_PATH}"
 			else
-				umask 666
+				umask 066
 				touch "$ARG_PATH"
 				setup_file
 			fi

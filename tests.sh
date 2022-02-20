@@ -20,7 +20,10 @@ on_error() {
 		exit_code=$? \
 		cmd=$BASH_COMMAND
 	if [ "$LEAVE_ENV" != 1 ]; then
-		podman rm -f "$CONTAINER_NAME" >/dev/null
+		local label
+		for label in $TARGET_IMAGES; do
+			podman rm -f "${CONTAINER_NAME}-${label}" >/dev/null || true
+		done
 	fi
 	echo "Failing with code ${exit_code} at ${*} in command: ${cmd}" >&2
 	exit "$exit_code"
