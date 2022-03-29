@@ -3,45 +3,20 @@
 RESOURCE_DIR=${RESOURCE_DIR:-$(realpath ./resources)}
 
 resource() {
-	# shellcheck disable=SC2064
-	trap "$(declare -f)" RETURN
-
-	base64_encode() {
-		base64 -w 0 | { cat; echo; }
-	}
-
-	serialize_arguments() {
+	local resource=$1; shift
+	(
+		if [ "$(type -t "resource_${resource}")" != "function" ]; then
+			resource_to_function "$resource"
+		fi
 		local var_name var_value
 		while [ "$#" -gt 0 ]; do
 			var_name=$1; shift
 			var_name="ARG_${var_name^^}"
 			var_value=$1; shift
-			echo "$var_name" | base64_encode
-			echo "$var_value" | base64_encode
-		done
-		echo
-	}
-
-	run_resource() {
-		local resource=$1; shift
-		local var_name var_value
-		while read -r var_name; do
-			if [ -z "$var_name" ]; then
-				break
-			fi
-			var_name=$(echo "$var_name" | base64 -d)
-			read -r var_value
-			var_value=$(echo "$var_value" | base64 -d)
 			declare "${var_name}=${var_value}"
 		done
-		if [ "$(type -t "resource_${resource}")" != "function" ]; then
-			resource_to_function "$resource"
-		fi
 		"resource_${resource}"
-	}
-
-	local resource=$1; shift
-	serialize_arguments "$@" | (run_resource "$resource")
+	)
 }
 
 get_resource_dependencies() {
