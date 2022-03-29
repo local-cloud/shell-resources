@@ -2,9 +2,10 @@
 
 set -euo pipefail
 
-ARG_PATH=${ARG_PATH:?'Destination path must be present'}
-ARG_URL=${ARG_URL:?'Repository URL must be present'}
-ARG_BRANCH=${ARG_BRANCH:-''}
+: \
+	"${ARG_PATH:?"Destination path must be present"}" \
+	"${ARG_URL:?"Repository URL must be present"}" \
+	"${ARG_BRANCH:=""}"
 
 if [ -e "$ARG_PATH" ]; then
 	if [ ! -d "${ARG_PATH}/.git" ]; then

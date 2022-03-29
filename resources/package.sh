@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-ARG_PACKAGES=${ARG_PACKAGES:?'Packages must be specified'}
+: "${ARG_PACKAGES:?"Packages must be specified"}"
 
 export DEBIAN_FRONTEND=noninteractive
 if [ "$ARG_CHECK_MODE" -eq 1 ]; then

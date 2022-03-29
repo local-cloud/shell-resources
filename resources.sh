@@ -32,9 +32,15 @@ get_resource_dependencies() {
 	local dependency
 	for dependency in $dependencies; do
 		if [ "$(type -t "$dependency")" != "function" ]; then
-			# TODO: Base directory would be better than relying on poorly named RESOURCE_DIR
-			# shellcheck disable=SC1090
-			source "${RESOURCE_DIR}/../helpers/${dependency}.sh"
+			if [[ "$dependency" =~ ^resource_ ]]; then
+				resource_to_function "${dependency#resource_}"
+			else
+				# shellcheck disable=SC1090
+				source "${RESOURCE_DIR}/../helpers/${dependency}.sh"
+			fi
+		else
+			echo "Dependency ${dependency} could not be loaded" >&2
+			return 1
 		fi
 		declare -f "${dependency}"
 	done

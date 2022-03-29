@@ -3,8 +3,9 @@
 set -euo pipefail
 set -x
 
-ARG_SOURCE=${ARG_SOURCE:?'Source must be provided'}
-ARG_DESTINATION=${ARG_DESTINATION:?'Destination must be provided'}
+: \
+	"${ARG_SOURCE:?"Source must be provided"}" \
+	"${ARG_DESTINATION:?"Destination must be provided"}"
 
 if [ -e "$ARG_DESTINATION" ] && [ ! -L "$ARG_DESTINATION" ]; then
 	echo "${ARG_DESTINATION} already exists and is not a symbolic link." >&2

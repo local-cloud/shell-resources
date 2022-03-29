@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
 ### START DEPENDENCIES
-# set_file_permissions
+# resource_file_permissions
 ### END DEPENDENCIES
 
 set -euo pipefail
 shopt -s lastpipe
 
-ARG_MANAGE_CONTENT=${ARG_MANAGE_CONTENT:-1}
-ARG_CONTENT=${ARG_CONTENT:-}
-ARG_PATH=${ARG_PATH:?"Path must be specified"}
-ARG_OWNER=${ARG_OWNER:-}
-ARG_GROUP=${ARG_GROUP:-}
-ARG_MODE=${ARG_MODE:-}
-# Available values: present, absent
-ARG_STATE=${ARG_STATE:-"present"}
-ARG_FOLLOW_LINK=${ARG_FOLLOW_LINK:-1}
+: \
+	"${ARG_PATH:?"Path must be specified"}" \
+	"${ARG_MANAGE_CONTENT:=1}" \
+	"${ARG_CONTENT:=}" \
+	"${ARG_OWNER:=}" \
+	"${ARG_GROUP:=}" \
+	"${ARG_MODE:=}" \
+	"${ARG_STATE:="present"}" \
+	"${ARG_FOLLOW_LINK:=1}"
 
 setup_permissions() {
 	declare -a options
-	[ -n "$ARG_OWNER" ] && options+=("--owner" "$ARG_OWNER")
-	[ -n "$ARG_GROUP" ] && options+=("--group" "$ARG_GROUP")
-	[ -n "$ARG_MODE" ] && options+=("--mode" "$ARG_MODE")
-	set_file_permissions --path "$ARG_PATH" "${options[@]}"
+	[ -n "$ARG_OWNER" ] && options+=("owner" "$ARG_OWNER")
+	[ -n "$ARG_GROUP" ] && options+=("group" "$ARG_GROUP")
+	[ -n "$ARG_MODE" ] && options+=("mode" "$ARG_MODE")
+	resource_file_permissions path "$ARG_PATH" "${options[@]}"
 }
 
 setup_content() {
