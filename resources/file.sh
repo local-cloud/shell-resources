@@ -7,6 +7,7 @@ set -euo pipefail
 shopt -s lastpipe
 
 : \
+	"${ARG_CHECK_MODE:=0}" \
 	"${ARG_PATH:?"Path must be specified"}" \
 	"${ARG_MANAGE_CONTENT:=1}" \
 	"${ARG_CONTENT:=}" \
@@ -21,7 +22,7 @@ setup_permissions() {
 	[ -n "$ARG_OWNER" ] && options+=("owner" "$ARG_OWNER")
 	[ -n "$ARG_GROUP" ] && options+=("group" "$ARG_GROUP")
 	[ -n "$ARG_MODE" ] && options+=("mode" "$ARG_MODE")
-	resource_file_permissions path "$ARG_PATH" "${options[@]}"
+	resource file_permissions path "$ARG_PATH" "${options[@]}"
 }
 
 setup_content() {
@@ -30,13 +31,13 @@ setup_content() {
 	fi
 	local changed=0
 	if [ -s "$ARG_PATH" ]; then
-		diff <(echo "$ARG_CONTENT") "$ARG_PATH" || changed=1
+		diff <(echo -n "$ARG_CONTENT") "$ARG_PATH" || changed=1
 	else
-		diff <(echo "$ARG_CONTENT") "$ARG_PATH" >/dev/null || changed=1
+		diff <(echo -n "$ARG_CONTENT") "$ARG_PATH" >/dev/null || changed=1
 		echo "Copy content to ${ARG_PATH}"
 	fi
 	if [ "$ARG_CHECK_MODE" = 1 ]; then
-		return
+		return 0
 	fi
 	if [ "$changed" = 1 ]; then
 		echo -n "$ARG_CONTENT" > "$ARG_PATH"
@@ -79,7 +80,7 @@ main() {
 		else
 			if [ "$ARG_CHECK_MODE" = 1 ]; then
 				echo "Remove file ${ARG_PATH}"
-				return
+				return 0
 			fi
 			rm -fv "${ARG_PATH}"
 		fi

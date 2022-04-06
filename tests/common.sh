@@ -2,11 +2,7 @@ q() {
 	printf '%q' "$1"
 }
 
-setup() {
-	# Ignore duplicated slashes
-	export BATS_TEST_TMPDIR=$(realpath "$BATS_TEST_TMPDIR")
-	rm -rfv "${BATS_TEST_TMPDIR}"/*
-	export MANIFEST="${BATS_TEST_TMPDIR}/manifest.sh"
+setup_manifest() {
 	cat > "$MANIFEST" <<- EOF
 		#!/bin/bash
 		set -euo pipefail
@@ -15,5 +11,13 @@ setup() {
 		CHECK_MODE=0
 		use_check_mode
 	EOF
+}
+
+setup() {
+	# Ignore duplicated slashes
+	export BATS_TEST_TMPDIR=$(realpath "$BATS_TEST_TMPDIR")
+	rm -rfv "${BATS_TEST_TMPDIR}"/*
+	export MANIFEST="${BATS_TEST_TMPDIR}/manifest.sh"
+	setup_manifest
 	chmod +x "$MANIFEST"
 }
